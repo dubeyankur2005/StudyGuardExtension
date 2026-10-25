@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>StudyGuard</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <main class="panel">
+    <header class="brand">
+      <div class="mark" aria-hidden="true"><svg viewBox="0 0 48 48"><path d="M24 3.5 42 10v12c0 11.5-7.2 19.2-18 24C13.2 41.2 6 33.5 6 22V10l18-6.5Z"/><path d="M13 18c4.2-1.6 7.9-1 11 1.5 3.1-2.5 6.8-3.1 11-1.5v13c-4.2-1.6-7.9-1-11 1.5-3.1-2.5-6.8-3.1-11-1.5V18Zm11 1.5v13"/></svg></div>
+      <div class="brand-copy"><h1>Study<span>Guard</span></h1><p>Focus Today, Build Your Tomorrow.</p></div>
+    </header>
+    <section class="mode-card" id="mode-card" aria-labelledby="mode-title">
+      <div class="mode-top"><div><h2 id="mode-title">Study Mode</h2><strong id="mode-state">OFF</strong></div>
+        <label class="switch"><input id="toggle" type="checkbox" aria-label="Enable Study Mode" aria-describedby="mode-description status"><span class="slider"></span></label>
+        <span class="shield-check" aria-hidden="true">✓</span>
+      </div>
+      <p id="mode-description">YouTube works normally.</p>
+    </section>
+    <section class="subjects" aria-labelledby="subjects-title">
+      <div class="section-heading"><h2 id="subjects-title">Allowed Subjects / Keywords</h2></div>
+      <div id="chips" class="chips" aria-live="polite"></div>
+      <form class="subject-form" id="subject-form">
+        <label class="sr-only" for="subject-input">Subject or video keyword</label>
+        <input id="subject-input" maxlength="60" placeholder="Add a subject or title keyword" autocomplete="off">
+        <button id="add-subject" class="add-submit" type="submit">Add</button>
+      </form>
+      <p id="subject-message" class="subject-message" role="status" aria-live="polite">Keywords are matched against video titles.</p>
+    </section>
+    <p id="status" class="status" role="status" aria-live="polite">Loading your settings…</p>
+  </main>
+  <script src="../content/classifier.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>
