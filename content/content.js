@@ -98,7 +98,8 @@
     const card = previewCardFor(video);
     if (!isBlockedCard(card)) return;
     pauseVideo(video);
-    // Preview media can start before metadata is ready; seeking is best-effort.
+    // YouTube reuses preview elements and can restart them on every hover. Seeking
+    // to the beginning also prevents a stopped preview from continuing silently.
     try { if (video.currentTime !== 0) video.currentTime = 0; } catch { /* Not seekable yet. */ }
   }
 
@@ -213,7 +214,7 @@
     enabled = Boolean(value);
     if (enabled) {
       document.documentElement.classList.add("sg-study-mode");
-      scheduleProcess();
+      process();
     } else {
       clearTimeout(watchGraceTimer);
       restore();
@@ -226,6 +227,19 @@
     if (link) return link;
     return target.closest(`.sg-blocked-card[${ATTR}]:not([${ATTR}='study'])`);
   }
+
+  // YouTube starts thumbnail previews from hover entry handlers. Stop those
+  // events at document capture for blocked cards, before YouTube's handlers can
+  // schedule playback. Media play guards remain as a second line of defense.
+  ["pointerover", "pointerenter", "mouseover", "mouseenter"].forEach(type => {
+    document.addEventListener(type, event => {
+      if (!enabled || !(event.target instanceof Element)) return;
+      const card = event.target.closest(CARD_SELECTOR);
+      if (!card || !isBlockedCard(card)) return;
+      event.preventDefault();
+      event.stopImmediatePropagation();
+    }, true);
+  });
 
   ["click", "auxclick", "pointerdown", "pointerup", "contextmenu"].forEach(type => {
     document.addEventListener(type, event => {
@@ -241,6 +255,12 @@
       if (event.target instanceof HTMLVideoElement) stopBlockedPreview(event.target);
     }, true);
   });
+  // A reused preview may receive a new source without being newly inserted. The
+  // capture-phase play guard above stops it synchronously; observing source and
+  // card mutations also catches previews that were already active at reclassify.
+  document.addEventListener("loadedmetadata", event => {
+    if (event.target instanceof HTMLVideoElement) stopBlockedPreview(event.target);
+  }, true);
   document.addEventListener("keydown", event => {
     if (!enabled || !["Enter", " "].includes(event.key) || !blockedTarget(event.target)) return;
     event.preventDefault(); event.stopImmediatePropagation();
@@ -259,7 +279,7 @@
     if (area !== "local" || !changes.customStudyKeywords) return;
     C.setCustomKeywords(changes.customStudyKeywords.newValue);
     classifierRevision++;
-    scheduleProcess();
+    process();
   });
   chrome.storage.local.get(["studyModeEnabled", "customStudyKeywords"]).then(value => {
     C.setCustomKeywords(Array.isArray(value.customStudyKeywords) ? value.customStudyKeywords : C.DEFAULT_CUSTOM_KEYWORDS);

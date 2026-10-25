@@ -3,7 +3,7 @@
   "name": "StudyGuard",
   "version": "1.0.0",
   "description": "Keep YouTube focused on learning while Study Mode is on.",
-  "permissions": ["storage", "scripting"],
+  "permissions": ["storage", "scripting", "alarms"],
   "host_permissions": ["https://www.youtube.com/*", "https://youtube.com/*"],
   "action": {
     "default_title": "StudyGuard",
